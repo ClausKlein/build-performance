@@ -1,0 +1,15 @@
+CMakeLists.txt
+buildcmake/
+buildcmakeninja/
+buildmeson/
+meson.build
+subdir0/
+subdir1/
+subdir2/
+subdir3/
+subdir4/
+subdir5/
+subdir6/
+subdir7/
+subdir8/
+subdir9/
