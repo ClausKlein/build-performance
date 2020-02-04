@@ -5,6 +5,7 @@ import os
 
 
 def gen_test(outdir, num_files=10, num_dirs=10):
+    print("generate %d directories containing each %d source files\n" % (num_dirs, num_files))
     gen_src_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
     gen_meson_tree(outdir, num_files, num_dirs)
@@ -105,7 +106,7 @@ def gen_cmake(outdir, target, num_files):
 def gen_src_tree(outdir, num_files, num_dirs):
     for i in range(num_dirs):
         subdir = 'subdir%d' % i
-        os.makedirs(subdir, exist_ok=True)
+        os.makedirs(os.path.join(outdir, subdir), exist_ok=True)
         gen_src(os.path.join(outdir, subdir), num_files)
 
 
