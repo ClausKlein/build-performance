@@ -25,8 +25,9 @@ def measure():
             'cd buildcmakeninja && ninja -j 2'],
         ['meson', 'rm -rf buildmeson && mkdir -p buildmeson && CC=clang meson buildmeson',
             'ninja -C buildmeson -j 2'],
-        # ['scons', None, 'scons -j 2'], ['premake', '/home/jpakkane/premake-4.4-beta4/bin/release/premake4 gmake', 'cd buildpremake && make -j 2'],
-        ## ['autotools', "rm -f *.o speedtest && autoreconf -vif && mkdir -p buildauto && cd buildauto && ../configure CFLAGS='-O0 -g'", 'cd buildauto && make -j 2'],
+        ['scons', 'CC=clang scons --clean', 'CC=clang scons -j 2'],
+        # NO! ['premake', '/home/jpakkane/premake-4.4-beta4/bin/release/premake4 gmake', 'cd buildpremake && make -j 2'],
+        # NO! ['autotools', "rm -f *.o speedtest && autoreconf -vif && mkdir -p buildauto && cd buildauto && ../configure CFLAGS='-O0 -g'", 'cd buildauto && make -j 2'],
     ]
     results = []
     for m in measurements:

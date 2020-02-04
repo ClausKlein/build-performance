@@ -1,7 +1,10 @@
+.sconsign.dblite
 CMakeLists.txt
+SConstruct
 buildcmake/
 buildcmakeninja/
 buildmeson/
+buildscons/
 meson.build
 subdir0/
 subdir1/

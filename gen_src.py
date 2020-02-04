@@ -8,9 +8,9 @@ def gen_test(outdir, num_files=10, num_dirs=10):
     gen_src_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
     gen_meson_tree(outdir, num_files, num_dirs)
-    # gen_autotools(outdir, num_files)
-    # gen_scons(outdir, num_files)
-    # gen_premake(outdir, num_files)
+    gen_scons_tree(outdir, num_files, num_dirs)
+    # NO! gen_autotools(outdir, num_files)
+    # NO! gen_premake(outdir, num_files)
 
 
 def gen_premake(outdir, num_files):
@@ -28,13 +28,22 @@ project "Speedtest"
 ''')
 
 
-def gen_scons(outdir, num_files):
+def gen_scons_tree(outdir, num_files, num_dirs):
+    sfile = open(os.path.join(outdir, 'SConstruct'), 'w')
+    sfile.write("env = DefaultEnvironment(CCFLAGS = '-g')\n")
+    for i in range(num_dirs):
+        subdir = 'subdir%d' % i
+        sfile.write("SConscript('%s/SConstruct', variant_dir='buildscons/%s', duplicate=0)\n" % (subdir, subdir))
+        gen_scons(os.path.join(outdir, subdir), i, num_files)
+
+
+def gen_scons(outdir, target, num_files):
     sfile = open(os.path.join(outdir, 'SConstruct'), 'w')
     sfile.write("""src_files = Split('main.c""")
     for i in range(num_files):
         sfile.write(""" file%d.c""" % i)
-    sfile.write("""')\n""")
-    sfile.write("""Program('speedtest', source=src_files)\n""")
+    sfile.write("""')\nenv = Environment()\n""")
+    sfile.write("env.Program('speedtest%d', source=src_files)\n" % target)
 
 
 def gen_meson_tree(outdir, num_files, num_dirs):
@@ -48,7 +57,6 @@ def gen_meson_tree(outdir, num_files, num_dirs):
 
 def gen_meson(outdir, target, num_files):
     mfile = open(os.path.join(outdir, 'meson.build'), 'w')
-    # mfile.write("""project('speedtest', 'c')
     mfile.write("executable('speedtest%d', 'main.c'" % target)
     for i in range(num_files):
         mfile.write(""", 'file%d.c'""" % i)
