@@ -19,13 +19,16 @@ def gettime(command):
 
 def measure():
     measurements = [
+        ['bazel', 'bazel aquery //subdir0:speedtest0',
+            'CC=clang bazel aquery //subdir0:speedtest0', 'CC=clang bazel clean'],
         ['cmake-make', 'rm -rf buildcmake && mkdir -p buildcmake && cd buildcmake && CC=\'ccache gcc\' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug ..',
             'cd buildcmake && make -j 2', 'cd buildcmake && make -j 2 clean'],
         ['cmake-ninja', 'rm -rf buildcmakeninja && mkdir -p buildcmakeninja && cd buildcmakeninja && CC=\'ccache gcc\' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -G Ninja ..',
             'cd buildcmakeninja && ninja -j 2', 'cd buildcmakeninja && ninja -j 2 clean'],
         ['meson', 'rm -rf buildmeson && mkdir -p buildmeson && CC=\'ccache gcc\' meson buildmeson',
             'ninja -C buildmeson -j 2', 'ninja -C buildmeson -j 2 clean'],
-        ['scons', 'rm -rf buildscons .sconsign.dblite', 'CC=\'ccache gcc\' scons -j 2', 'CC=\'ccache gcc\' scons -j 2 -c'],
+        ['scons', 'rm -rf buildscons .sconsign.dblite',
+            'CC=\'ccache gcc\' scons -j 2', 'CC=\'ccache gcc\' scons -j 2 -c'],
         # NO! ['premake', '/home/jpakkane/premake-4.4-beta4/bin/release/premake4 gmake', 'cd buildpremake && make -j 2', none],
         # NO! ['autotools', "rm -f *.o speedtest && autoreconf -vif && mkdir -p buildauto && cd buildauto && ../configure CFLAGS='-O0 -g'", 'cd buildauto && make -j 2', none],
     ]

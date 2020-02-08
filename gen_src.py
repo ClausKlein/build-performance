@@ -9,6 +9,7 @@ def gen_test(outdir, num_files=3, num_dirs=2):
     gen_src_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
     gen_meson_tree(outdir, num_files, num_dirs)
+    gen_bazel_tree(outdir, num_files, num_dirs)
     gen_scons_tree(outdir, num_files, num_dirs)
     # NO! gen_autotools(outdir, num_files)
     # NO! gen_premake(outdir, num_files)
@@ -34,7 +35,8 @@ def gen_scons_tree(outdir, num_files, num_dirs):
     sfile.write("env = DefaultEnvironment(CCFLAGS = '-g')\n")
     for i in range(num_dirs):
         subdir = 'subdir%d' % i
-        sfile.write("SConscript('%s/SConstruct', variant_dir='buildscons/%s', duplicate=0)\n" % (subdir, subdir))
+        sfile.write(
+            "SConscript('%s/SConstruct', variant_dir='buildscons/%s', duplicate=0)\n" % (subdir, subdir))
         gen_scons(os.path.join(outdir, subdir), i, num_files)
 
 
@@ -62,6 +64,24 @@ def gen_meson(outdir, target, num_files):
     for i in range(num_files):
         mfile.write(""", 'file%d.c'""" % i)
     mfile.write(')\n')
+
+
+def gen_bazel_tree(outdir, num_files, num_dirs):
+    cfile = open(os.path.join(outdir, 'WORKSPACE'), 'w')
+    # cfile.write("project('speedtest', 'c')\n")
+    for i in range(num_dirs):
+        subdir = 'subdir%d' % i
+        # cfile.write("subdir('%s')\n" % subdir)
+        gen_bazel(os.path.join(outdir, subdir), i, num_files)
+
+
+def gen_bazel(outdir, target, num_files):
+    mfile = open(os.path.join(outdir, 'BUILD'), 'w')
+    mfile.write("""# load("@rules_cc//cc:defs.bzl", "cc_binary")\n\n""")
+    mfile.write("""cc_binary(\n\tname = "speedtest%d",\n\tsrcs = ["main.c" """ % target)
+    for i in range(num_files):
+        mfile.write(""", "file%d.c" """ % i)
+    mfile.write("],\n)\n")
 
 
 def gen_autotools(outdir, num_files):
