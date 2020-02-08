@@ -60,7 +60,7 @@ Run test suite::
   clausklein$
 
 
-The ninja base builds are the best as expected
+The ninja based builds are the best as expected
 -----------------------------------------------
 
 One interesting point is the different size of the generated ninja build files.
