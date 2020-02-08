@@ -78,6 +78,8 @@ Recources
 ----------
 
 * https://medium.com/@julienjorge/an-overview-of-build-systems-mostly-for-c-projects-ac9931494444
+* https://github.com/open-source-parsers/jsoncpp with a dual build system: cmake and meson!
+
 * https://en.wikipedia.org/wiki/List_of_build_automation_software
 * https://trends.google.com/trends/explore?date=all&q=meson,mpc-ace,%2Fm%2F04dl04,%2Fm%2F0cxh7f
 * http://esr.ibiblio.org/?p=8581
