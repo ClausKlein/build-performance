@@ -81,7 +81,13 @@ Recources
 * https://github.com/open-source-parsers/jsoncpp with a dual build system: cmake and meson!
 
 * https://en.wikipedia.org/wiki/List_of_build_automation_software
-* https://trends.google.com/trends/explore?date=all&q=meson,mpc-ace,%2Fm%2F04dl04,%2Fm%2F0cxh7f
+* https://trends.google.com/trends/explore?date=all&q=bazel,meson,mpc-ace,%2Fm%2F04dl04,%2Fm%2F0cxh7f
 * http://esr.ibiblio.org/?p=8581
 * http://doc.cat-v.org/plan_9/4th_edition/papers/mk
+* https://medium.com/windmill-engineering/bazel-is-the-worst-build-system-except-for-all-the-others-b369396a9e26
+
+Historic
+.........
+
+* https://www.google.com/search?q=%22Recursive+Make+Considered+Harmful%22+filetype%3Apdf&oq=&aqs=
 * https://manpages.debian.org/testing/mpc-ace/mpc-ace.1.en.html
