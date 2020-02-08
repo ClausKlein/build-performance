@@ -4,7 +4,7 @@ import sys
 import os
 
 
-def gen_test(outdir, num_files=10, num_dirs=10):
+def gen_test(outdir, num_files=3, num_dirs=2):
     print("generate %d directories containing each %d source files\n" % (num_dirs, num_files))
     gen_src_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
