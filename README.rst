@@ -2,7 +2,8 @@
 Simple build performance comparison
 ====================================
 
-This simple python scripts are based on the idea at https://mesonbuild.com/Simple-comparison.html
+These simple python scripts are based on the idea at
+https://mesonbuild.com/Simple-comparison.html
 
 Setup test suit::
 
@@ -59,9 +60,12 @@ Run test suit::
   clausklein$
 
 
-The ninja base build is the best as expected.
-The mesaon build generator creates a simpler and clear **build.ninja** files.
-One interesting point is the diffent size of the generate ninja build rules::
+The ninja base builds are the best as expected
+-----------------------------------------------
+
+One interesting point is the different size of the generated ninja build files.
+The meson build generator creates only one and a simpler and clear
+**build.ninja** file::
 
   clausklein$ find build -name '*.ninja' -ls
   81941300       48 -rw-r--r--    1 clausklein   staff   21306  8 Feb 10:17 build/buildcmakeninja/build.ninja
@@ -70,7 +74,7 @@ One interesting point is the diffent size of the generate ninja build rules::
   clausklein$
 
 
-Resourses
+Recources
 ----------
 
 * https://medium.com/@julienjorge/an-overview-of-build-systems-mostly-for-c-projects-ac9931494444
