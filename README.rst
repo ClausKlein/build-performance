@@ -5,12 +5,12 @@ Simple build performance comparison
 These simple python scripts are based on the idea at
 https://mesonbuild.com/Simple-comparison.html
 
-Setup test suit::
+Setup test suite::
 
   clausklein$ ./gen_src.py build
   generate 2 directories containing each 3 source files
 
-Run test suit::
+Run test suite::
 
   clausklein$ ./measure.py build
   Running command: rm -rf buildcmake && mkdir -p buildcmake && cd buildcmake && CC='ccache gcc' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug ..
