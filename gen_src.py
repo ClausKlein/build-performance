@@ -5,7 +5,7 @@ import os
 
 
 def gen_test(outdir, num_files=3, num_dirs=2):
-    print("generate %d directories containing each %d source files\n" % (num_dirs, num_files))
+    print("generate %d directories containing each %d source files\n" % (num_dirs, num_files + 1))
     gen_src_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
     gen_meson_tree(outdir, num_files, num_dirs)

@@ -19,16 +19,14 @@ def gettime(command):
 
 def measure():
     measurements = [
-        ['bazel', 'bazel aquery //subdir0:speedtest0',
-            'CC=clang bazel aquery //subdir0:speedtest0', 'CC=clang bazel clean'],
+        # PREPARED ['bazel', 'bazel aquery //subdir0:speedtest0', 'CC=clang bazel build //subdir0:speedtest0', 'CC=clang bazel clean'],
         ['cmake-make', 'rm -rf buildcmake && mkdir -p buildcmake && cd buildcmake && CC=\'ccache gcc\' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug ..',
             'cd buildcmake && make -j 2', 'cd buildcmake && make -j 2 clean'],
         ['cmake-ninja', 'rm -rf buildcmakeninja && mkdir -p buildcmakeninja && cd buildcmakeninja && CC=\'ccache gcc\' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -G Ninja ..',
             'cd buildcmakeninja && ninja -j 2', 'cd buildcmakeninja && ninja -j 2 clean'],
         ['meson', 'rm -rf buildmeson && mkdir -p buildmeson && CC=\'ccache gcc\' meson buildmeson',
             'ninja -C buildmeson -j 2', 'ninja -C buildmeson -j 2 clean'],
-        ['scons', 'rm -rf buildscons .sconsign.dblite',
-            'CC=\'ccache gcc\' scons -j 2', 'CC=\'ccache gcc\' scons -j 2 -c'],
+        # NO! ['scons', 'rm -rf buildscons .sconsign.dblite', 'CC=\'ccache gcc\' scons -j 2', 'CC=\'ccache gcc\' scons -j 2 -c'],
         # NO! ['premake', '/home/jpakkane/premake-4.4-beta4/bin/release/premake4 gmake', 'cd buildpremake && make -j 2', none],
         # NO! ['autotools', "rm -f *.o speedtest && autoreconf -vif && mkdir -p buildauto && cd buildauto && ../configure CFLAGS='-O0 -g'", 'cd buildauto && make -j 2', none],
     ]
@@ -54,8 +52,10 @@ def print_times(times):
         print(" %.3f gen" % t[1])
         print(" %.3f build" % t[2])
         print(" %.3f empty build" % t[3])
-        print(" %.3f clean" % t[2])
-        print(" %.3f rebuild" % t[2])
+        print(" %.3f clean" % t[4])
+        print(" %.3f rebuild" % t[5])
+        overall = t[1] + t[2] + t[3] + t[4] + t[5]
+        print(" %.3f overall" % overall)
 
 
 if __name__ == '__main__':
