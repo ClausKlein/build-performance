@@ -9,8 +9,8 @@ def gen_test(outdir, num_files=37, num_dirs=123):
     gen_src_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
     gen_meson_tree(outdir, num_files, num_dirs)
-    gen_bazel_tree(outdir, num_files, num_dirs)
-    gen_scons_tree(outdir, num_files, num_dirs)
+    # TODO gen_bazel_tree(outdir, num_files, num_dirs)
+    # deprecated! gen_scons_tree(outdir, num_files, num_dirs)
     # NO! gen_autotools(outdir, num_files)
     # NO! gen_premake(outdir, num_files)
 

@@ -19,43 +19,42 @@ Setup test suite::
 Run test suite::
 
   clausklein$ ./measure.py build
-  Running command: rm -rf buildcmake && mkdir -p buildcmake && cd buildcmake && CC='ccache gcc' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug ..
-  Running command: cd buildcmake && make -j 2
-  Running command: cd buildcmake && make -j 2
-  Running command: cd buildcmake && make -j 2 clean
-  Running command: cd buildcmake && make -j 2
-  Running command: rm -rf buildcmakeninja && mkdir -p buildcmakeninja && cd buildcmakeninja && CC='ccache gcc' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -G Ninja ..
-  Running command: cd buildcmakeninja && ninja -j 2
-  Running command: cd buildcmakeninja && ninja -j 2
-  Running command: cd buildcmakeninja && ninja -j 2 clean
-  Running command: cd buildcmakeninja && ninja -j 2
-  Running command: rm -rf buildmeson && mkdir -p buildmeson && CC='ccache gcc' meson buildmeson
-  Running command: ninja -C buildmeson -j 2
-  Running command: ninja -C buildmeson -j 2
-  Running command: ninja -C buildmeson -j 2 clean
-  Running command: ninja -C buildmeson -j 2
+  Running command: rm -rf build-cmake && mkdir -p build-cmake && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER_LAUNCHER=ccache -B build-cmake
+  Running command: make -C build-cmake -j 4
+  Running command: make -C build-cmake -j 4
+  Running command: make -C build-cmake -j 4 clean
+  Running command: make -C build-cmake -j 4
+  Running command: rm -rf build-cmake-ninja && mkdir -p build-cmake-ninja && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER_LAUNCHER=ccache -B build-cmake-ninja -G Ninja
+  Running command: ninja -C build-cmake-ninja -j 4
+  Running command: ninja -C build-cmake-ninja -j 4
+  Running command: ninja -C build-cmake-ninja -j 4 clean
+  Running command: ninja -C build-cmake-ninja -j 4
+  Running command: rm -rf build-meson && mkdir -p build-meson && CC='ccache gcc' meson build-meson
+  Running command: ninja -C build-meson -j 4
+  Running command: ninja -C build-meson -j 4
+  Running command: ninja -C build-meson -j 4 clean
+  Running command: ninja -C build-meson -j 4
   cmake-make
-   1.235 gen
-   0.806 build
-   0.220 empty build
-   0.108 clean
-   0.618 rebuild
-   2.988 overall
+   0.865 gen
+   0.518 build
+   0.189 empty build
+   0.095 clean
+   0.566 rebuild
+   2.234 overall
   cmake-ninja
-   0.868 gen
-   0.304 build
-   0.016 empty build
-   0.033 clean
-   0.272 rebuild
-   1.493 overall
+   0.718 gen
+   0.188 build
+   0.013 empty build
+   0.032 clean
+   0.204 rebuild
+   1.155 overall
   meson
-   1.750 gen
-   0.278 build
-   0.012 empty build
-   0.024 clean
-   0.263 rebuild
-   2.326 overall
-  clausklein$
+   1.611 gen
+   0.237 build
+   0.013 empty build
+   0.022 clean
+   0.219 rebuild
+   2.101 overall
 
 
 The ninja based builds are the best as expected
@@ -77,47 +76,39 @@ And build performance with a real project
 
 The https://github.com/open-source-parsers/jsoncpp use both, *meson* and *cmake*::
 
-  Running command: rm -rf buildcmake && mkdir -p buildcmake && cd buildcmake && CC='ccache gcc' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug ..
-  Running command: cd buildcmake && make -j 2
-  Running command: cd buildcmake && make -j 2
-  Running command: cd buildcmake && make -j 2 clean
-  Running command: cd buildcmake && make -j 2
-  Running command: rm -rf buildcmakeninja && mkdir -p buildcmakeninja && cd buildcmakeninja && CC='ccache gcc' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -G Ninja ..
-  Running command: cd buildcmakeninja && ninja -j 2
-  Running command: cd buildcmakeninja && ninja -j 2
-  Running command: cd buildcmakeninja && ninja -j 2 clean
-  Running command: cd buildcmakeninja && ninja -j 2
-  Running command: rm -rf buildmeson && mkdir -p buildmeson && CC='ccache gcc' meson buildmeson
-  Running command: ninja -C buildmeson -j 2
-  Running command: ninja -C buildmeson -j 2
-  Running command: ninja -C buildmeson -j 2 clean
-  Running command: ninja -C buildmeson -j 2
-  cmake-make
-   4.737 gen
-   1.338 build
-   0.289 empty build
-   0.743 clean
-   1.237 rebuild
-   8.345 overall
+  bash-5.0$ python3 ./build_performance_measure.py
+  Running command: rm -rf build-cmake-ninja && mkdir -p build-cmake-ninja && CXX=g++ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -B build-cmake-ninja
+  Running command: ninja -C build-cmake-ninja
+  Running command: ninja -C build-cmake-ninja
+  Running command: ninja -C build-cmake-ninja clean
+  Running command: ninja -C build-cmake-ninja
+  Running command: rm -rf build-meson && mkdir -p build-meson && CXX='ccache g++' meson build-meson
+  Running command: ninja -C build-meson
+  Running command: ninja -C build-meson
+  Running command: ninja -C build-meson clean
+  Running command: ninja -C build-meson
   cmake-ninja
-   4.080 gen
-   0.621 build
+   3.755 gen
+   0.739 build
    0.018 empty build
-   0.034 clean
-   0.584 rebuild
-   5.338 overall
+   0.044 clean
+   0.721 rebuild
+   5.276 overall
   meson
-   1.996 gen
-   1.161 build
+   1.918 gen
+   1.409 build
    0.014 empty build
-   0.021 clean
-   1.151 rebuild
-   4.343 overall
-  bash-5.0$ pwd
-  /Users/clausklein/Workspace/cpp/jsoncpp
+   0.032 clean
+   1.410 rebuild
+   4.784 overall
   bash-5.0$
 
-IMHO: The winner is https://mesonbuild.com using https://ninja-build.org and https://ccache.dev
+
+Interesting is here: The compact *meson.build* file (only 125 lines) generates
+fast a realy clear *build.ninja*, but needs more time to build (old i386 with
+only 2 cores). Overall for this small project, mesonbuild is faster.
+
+IMHO: The winner seems https://mesonbuild.com using https://ninja-build.org and https://ccache.dev
 
 
 Recources
@@ -125,7 +116,7 @@ Recources
 
 **A nice project with a dual build system: cmake and meson**
 
-  * https://github.com/open-source-parsers/jsoncpp I used it for the second performance test.
+  * https://github.com/ClausKlein/jsoncpp I used it for the second performance test.
 
 * https://medium.com/@julienjorge/an-overview-of-build-systems-mostly-for-c-projects-ac9931494444
 * https://en.wikipedia.org/wiki/List_of_build_automation_software

@@ -2,11 +2,7 @@
 .sconsign.dblite
 CMakeLists.txt
 SConstruct
-build.ninja
-buildcmake/
-buildcmakeninja/
-buildmeson/
-buildscons/
+build*/
 compile_commands.json
 meson-info/
 meson-logs/

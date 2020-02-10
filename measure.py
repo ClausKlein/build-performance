@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -tt
+#!/usr/bin/env python3 -tt
 
 import sys
 import os
@@ -17,18 +17,20 @@ def gettime(command):
     return endtime - starttime
 
 
-def measure():
+def measure(cores=4):
+    cmake_defaults = '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER_LAUNCHER=ccache'
+
     measurements = [
-        # PREPARED ['bazel', 'bazel aquery //subdir0:speedtest0', 'CC=clang bazel build //subdir0:speedtest0', 'CC=clang bazel clean'],
-        # TBD ['cmake-make', 'rm -rf buildcmake && mkdir -p buildcmake && cd buildcmake && CC=\'ccache gcc\' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug ..',
-        # TBD     'cd buildcmake && make -j 4', 'cd buildcmake && make -j 4 clean'],
-        ['cmake-ninja', 'rm -rf buildcmakeninja && mkdir -p buildcmakeninja && cd buildcmakeninja && CC=\'ccache gcc\' cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -G Ninja ..',
-            'cd buildcmakeninja && ninja -j 4', 'cd buildcmakeninja && ninja -j 4 clean'],
-        ['meson', 'rm -rf buildmeson && mkdir -p buildmeson && CC=\'ccache gcc\' meson buildmeson',
-            'ninja -C buildmeson -j 4', 'ninja -C buildmeson -j 4 clean'],
-        # NO! ['scons', 'rm -rf buildscons .sconsign.dblite', 'CC=\'ccache gcc\' scons -j 4', 'CC=\'ccache gcc\' scons -j 4 -c'],
-        # NO! ['premake', '/home/jpakkane/premake-4.4-beta4/bin/release/premake4 gmake', 'cd buildpremake && make -j 4', none],
-        # NO! ['autotools', "rm -f *.o speedtest && autoreconf -vif && mkdir -p buildauto && cd buildauto && ../configure CFLAGS='-O0 -g'", 'cd buildauto && make -j 4', none],
+        # PREPARED ['bazel', 'bazel aquery //subdir0:speedtest0', 'CC=clang bazel build //subdir0:speedtest0', 'CC=gcc bazel clean'],
+        ['cmake-make', 'rm -rf {1} && mkdir -p {1} && cmake {0} -B {1}'.format(cmake_defaults, 'build-cmake'),
+            'make -C build-cmake -j {}'.format(cores), 'make -C build-cmake -j {} clean'.format(cores)],
+        ['cmake-ninja', 'rm -rf {1} && mkdir -p {1} && cmake {0} -B {1} -G Ninja'.format(cmake_defaults, 'build-cmake-ninja'),
+            'ninja -C build-cmake-ninja -j {}'.format(cores), 'ninja -C build-cmake-ninja -j {} clean'.format(cores)],
+        ['meson', 'rm -rf {0} && mkdir -p {0} && CC=\'ccache gcc\' meson {0}'.format('build-meson'),
+            'ninja -C build-meson -j {}'.format(cores), 'ninja -C build-meson -j {} clean'.format(cores)],
+        # NO! ['scons', 'rm -rf buildscons .sconsign.dblite', 'CC=\'ccache gcc\' scons -j {}'.format(cores), 'CC=\'ccache gcc\' scons -j {} -c'.format(cores)],
+        # NO! ['premake', 'premake4 gmake', 'make -C buildpremake -j {}'.format(cores), None],
+        # NO! ['autotools', "rm -f *.o speedtest && autoreconf -vif && mkdir -p buildauto && cd buildauto && ../configure CFLAGS='-O0 -g'", 'make -C buildauto -j {}'.format(cores), None],
     ]
     results = []
     for m in measurements:
