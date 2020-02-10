@@ -1,10 +1,10 @@
-#!/usr/bin/env python3 -tt
+#!/usr/bin/python3 -tt
 
 import sys
 import os
 
 
-def gen_test(outdir, num_files=3, num_dirs=2):
+def gen_test(outdir, num_files=37, num_dirs=123):
     print("generate %d directories containing each %d source files\n" % (num_dirs, num_files + 1))
     gen_src_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
