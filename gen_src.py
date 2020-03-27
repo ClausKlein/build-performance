@@ -4,9 +4,10 @@ import sys
 import os
 
 
-def gen_test(outdir, num_files=37, num_dirs=123):
+def gen_test(outdir, num_files=3, num_dirs=12):
     print("generate %d directories containing each %d source files\n" % (num_dirs, num_files + 1))
     gen_src_tree(outdir, num_files, num_dirs)
+    gen_ninja_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
     gen_meson_tree(outdir, num_files, num_dirs)
     # TODO gen_bazel_tree(outdir, num_files, num_dirs)
@@ -49,9 +50,53 @@ def gen_scons(outdir, target, num_files):
     sfile.write("env.Program('speedtest%d', source=src_files)\n" % target)
 
 
+def gen_ninja_tree(outdir, num_files, num_dirs):
+    cfile = open(os.path.join(outdir, 'build.ninja'), 'w')
+    cwd = os.path.realpath(outdir)
+    cfile.write("PWD={}\n".format(cwd))
+    cfile.write('''
+rule cp
+  command = cp $in $out
+
+rule cc
+  depfile = $out.d
+  deps = gcc
+  command = cc -c -I$PWD $IN -o $out -MMD -MT $out -MF $out.d
+
+build foo: phony foo.h
+build foo.h: cp foo.h.in
+
+''')
+    for i in range(num_dirs):
+        subdir = 'subdir%d' % i
+        odir = os.path.realpath(outdir)
+        gen_ninja(os.path.join(odir, subdir), i, num_files, cfile)
+        cfile.write("\n")
+
+    cfile.write("build all: phony foo ")
+    for i in range(num_dirs):
+        cfile.write("{}.o ".format(i))
+        subdir = 'subdir%d' % i
+        odir = os.path.realpath(outdir)
+        for f in range(num_files):
+            cfile.write("{}/subdir{}/file{}.o ".format(odir, i, f))
+    cfile.write("\ndefault all\n")
+
+
+def gen_ninja(outdir, target, num_files, cfile):
+    cfile.write("build %d.o: cc %s/main.c || foo.h\n" % (target, outdir))
+    cfile.write("  IN = %s/main.c\n" % outdir)
+    for i in range(num_files):
+        ### cfile.write("build {1}/file{0}.o: cc {1}/file{0}.c || foo.h {1}/header.h\n".format(i, outdir))
+        cfile.write("build {1}/file{0}.o: cc {1}/file{0}.c || foo.h\n".format(i, outdir))
+        cfile.write("  IN = {1}/file{0}.c\n".format(i, outdir))
+
+
 def gen_meson_tree(outdir, num_files, num_dirs):
     cfile = open(os.path.join(outdir, 'meson.build'), 'w')
     cfile.write("project('speedtest', 'c')\n")
+    odir = os.path.realpath(outdir)
+    cfile.write("include_directories('%s')\n" % odir)
     for i in range(num_dirs):
         subdir = 'subdir%d' % i
         cfile.write("subdir('%s')\n" % subdir)
@@ -60,6 +105,8 @@ def gen_meson_tree(outdir, num_files, num_dirs):
 
 def gen_meson(outdir, target, num_files):
     mfile = open(os.path.join(outdir, 'meson.build'), 'w')
+    odir = os.path.relpath("..", start=outdir + "/..")
+    mfile.write("include_directories('%s')\n" % odir)
     mfile.write("executable('speedtest%d', 'main.c'" % target)
     for i in range(num_files):
         mfile.write(""", 'file%d.c'""" % i)
@@ -109,6 +156,7 @@ speedtest_SOURCES = main.c ''')
 def gen_cmake_tree(outdir, num_files, num_dirs):
     cfile = open(os.path.join(outdir, 'CMakeLists.txt'), 'w')
     cfile.write("project(speedtest C)\n")
+    cfile.write("include_directories(%s)\n" % ".")
     for i in range(num_dirs):
         subdir = 'subdir%d' % i
         cfile.write("add_subdirectory(%s)\n" % subdir)
@@ -124,6 +172,7 @@ def gen_cmake(outdir, target, num_files):
 
 
 def gen_src_tree(outdir, num_files, num_dirs):
+    foofile = open(os.path.join(outdir, 'foo.h.in'), 'w')
     for i in range(num_dirs):
         subdir = 'subdir%d' % i
         os.makedirs(os.path.join(outdir, subdir), exist_ok=True)
@@ -131,7 +180,7 @@ def gen_src_tree(outdir, num_files, num_dirs):
 
 
 def gen_src(outdir, num_files):
-    ftempl = '#include<stdio.h>\n#include"header.h"\n\nint func%d() { return 0; }\n'
+    ftempl = '#include <stdio.h>\n#include "header.h"\n\nint func%d() { return 0; }\n'
     hlinetempl = "int func%d();\n"
     mainlinetempl = '  func%d();\n'
     hfile = open(os.path.join(outdir, 'header.h'), 'w')
@@ -139,6 +188,7 @@ def gen_src(outdir, num_files):
     mainfile.write('''#include "header.h"
 int main(int argc, char **argv) {
 ''')
+    hfile.write("#include \"foo.h\"\n\n")
     for i in range(num_files):
         fname = os.path.join(outdir, 'file%d.c' % i)
         fcontents = ftempl % i
