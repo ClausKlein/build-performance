@@ -61,10 +61,10 @@ rule cp
 rule cc
   depfile = $out.d
   deps = gcc
-  command = cc -c -I$PWD $IN -o $out $FLAGS -MMD -MT $out -MF $out.d
+  command = gcc -c -I$PWD $IN -o $out $FLAGS -MMD -MT $out -MF $out.d
 
 rule link
-  command = cc -o $TARGET_FILE $in $LINK_PATH $LINK_LIBRARIES
+  command = gcc -o $out $in $LINK_PATH $LINK_LIBRARIES
 
 build foo: phony foo.h
 build foo.h: cp foo.h.in
@@ -76,10 +76,9 @@ build foo.h: cp foo.h.in
         gen_ninja(os.path.join(odir, subdir), i, num_files, cfile)
         cfile.write("\n")
 
-    # TODO link
-    # build 0: phony 0.o subdir0/file0.o subdir0/file2.o subdir0/file3.o ...
+    # build bin/main0: link main0.o subdir0/file0.o subdir0/file2.o subdir0/file3.o ...
     for i in range(num_dirs):
-        cfile.write("build {0}: phony {0}.o ".format(i))
+        cfile.write("build bin/main{0}: link bin/main{0}.o ".format(i))
         subdir = 'subdir%d' % i
         odir = os.path.realpath(outdir)
         for f in range(num_files):
@@ -87,18 +86,18 @@ build foo.h: cp foo.h.in
         cfile.write("\n")
     cfile.write("\n")
 
-    # build all: phony foo 0 1 2 ...
+    # build all: phony foo bin/main0 bin/main1 bin/main2 ...
     cfile.write("build all: phony foo ")
     for i in range(num_dirs):
-        cfile.write("{}.o ".format(i))
+        cfile.write("bin/main{} ".format(i))
     cfile.write("\ndefault all\n")
 
 
 def gen_ninja(outdir, target, num_files, cfile):
-    cfile.write("build %d.o: cc %s/main.c || foo.h\n" % (target, outdir))
+    # build bin/main0.o: cc subdir0/main.c || foo.h
+    cfile.write("build bin/main%d.o: cc %s/main.c || foo.h\n" % (target, outdir))
     cfile.write("  IN = %s/main.c\n" % outdir)
     for i in range(num_files):
-        # build 0.o: cc subdir0/main.c || foo.h
         cfile.write("build {1}/file{0}.o: cc {1}/file{0}.c || foo.h\n".format(i, outdir))
         cfile.write("  IN = {1}/file{0}.c\n".format(i, outdir))
 
@@ -197,6 +196,7 @@ def gen_src(outdir, num_files):
     hfile = open(os.path.join(outdir, 'header.h'), 'w')
     mainfile = open(os.path.join(outdir, 'main.c'), 'w')
     mainfile.write('''#include "header.h"
+
 int main(int argc, char **argv) {
 ''')
     hfile.write("#include \"foo.h\"\n\n")
