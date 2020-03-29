@@ -1,11 +1,13 @@
-#!/usr/bin/python3 -tt
+#!/usr/bin/env python
 
+import getopt
 import sys
 import os
 
 
-def gen_test(outdir, num_files=3, num_dirs=12):
-    print("generate %d directories containing each %d source files\n" % (num_dirs, num_files + 1))
+def gen_test(outdir, num_dirs, num_files):
+    print("generate %d directories containing each %d source files at ./%s\n" %
+          (num_dirs, num_files + 1, outdir))
     gen_src_tree(outdir, num_files, num_dirs)
     gen_ninja_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
@@ -182,7 +184,9 @@ def gen_cmake(outdir, target, num_files):
 
 
 def gen_src_tree(outdir, num_files, num_dirs):
-    foofile = open(os.path.join(outdir, 'foo.h.in'), 'w')
+    os.makedirs(outdir, exist_ok=True)
+    foo_h = open(os.path.join(outdir, 'foo.h'), 'w')
+    foo_h_in = open(os.path.join(outdir, 'foo.h.in'), 'w')
     for i in range(num_dirs):
         subdir = 'subdir%d' % i
         os.makedirs(os.path.join(outdir, subdir), exist_ok=True)
@@ -215,9 +219,33 @@ int main(int argc, char **argv) {
 ''')
 
 
+def main():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hd:f:o:", [
+                                   "help", "dirnum=", "filenum=", "outdir="])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print(err)  # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+    outdir = 'build'
+    dirnum = 2
+    filenum = 3
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            print(sys.argv[0], '--dirnum=2 --filnum=3 --outdir=build')
+            sys.exit()
+        elif o in ("-o", "--outdir"):
+            outdir = str(a)
+        elif o in ("-f", "--filenum"):
+            filenum = int(a)
+        elif o in ("-d", "--dirnum"):
+            dirnum = int(a)
+        else:
+            assert False, "unhandled option"
+    # ...
+    gen_test(outdir, dirnum, filenum)
+
+
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print(sys.argv[0], '<output dir>')
-        sys.exit(1)
-    outdir = sys.argv[1]
-    gen_test(outdir)
+    main()
