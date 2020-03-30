@@ -63,13 +63,13 @@ rule cp
 rule cc
   depfile = $out.d
   deps = gcc
-  command = gcc -c -I$PWD $IN -o $out $FLAGS -MMD -MT $out -MF $out.d
+  command = ccache gcc -c -I$PWD $IN -o $out $FLAGS -MMD -MT $out -MF $out.d
 
 rule link
   command = gcc -o $out $in $LINK_PATH $LINK_LIBRARIES
 
-build foo: phony foo.h
-build foo.h: cp foo.h.in
+build config: phony config.h
+build config.h: cp config.h.in
 
 ''')
     for i in range(num_dirs):
@@ -88,25 +88,31 @@ build foo.h: cp foo.h.in
         cfile.write("\n")
     cfile.write("\n")
 
-    # build all: phony foo bin/main0 bin/main1 bin/main2 ...
-    cfile.write("build all: phony foo ")
+    # build all: phony config bin/main0 bin/main1 bin/main2 ...
+    cfile.write("build all: phony config ")
     for i in range(num_dirs):
         cfile.write("bin/main{} ".format(i))
     cfile.write("\ndefault all\n")
 
 
 def gen_ninja(outdir, target, num_files, cfile):
-    # build bin/main0.o: cc subdir0/main.c || foo.h
-    cfile.write("build bin/main%d.o: cc %s/main.c || foo.h\n" % (target, outdir))
+    # build bin/main0.o: cc subdir0/main.c || config.h
+    cfile.write("build bin/main%d.o: cc %s/main.c || config.h\n" % (target, outdir))
     cfile.write("  IN = %s/main.c\n" % outdir)
     for i in range(num_files):
-        cfile.write("build {1}/file{0}.o: cc {1}/file{0}.c || foo.h\n".format(i, outdir))
+        cfile.write("build {1}/file{0}.o: cc {1}/file{0}.c || config.h\n".format(i, outdir))
         cfile.write("  IN = {1}/file{0}.c\n".format(i, outdir))
 
 
 def gen_meson_tree(outdir, num_files, num_dirs):
     cfile = open(os.path.join(outdir, 'meson.build'), 'w')
-    cfile.write("project('speedtest', 'c')\n")
+    cfile.write("""project('speedtest', 'c')
+conf_data = configuration_data()
+conf_data.set('version', '1.2.3')
+configure_file(input : 'config.h.in',
+               output : 'config.h',
+               configuration : conf_data)
+""")
     # odir = os.path.realpath(outdir)
     # cfile.write("incdir = include_directories('%s')\n" % odir)
     for i in range(num_dirs):
@@ -117,7 +123,8 @@ def gen_meson_tree(outdir, num_files, num_dirs):
 
 def gen_meson(outdir, target, num_files):
     mfile = open(os.path.join(outdir, 'meson.build'), 'w')
-    odir = os.path.relpath("..", start=outdir + "/..")
+    # odir = os.path.relpath("..", start=outdir + "/..")
+    odir = ".."
     mfile.write("incdir = include_directories('%s')\n" % odir)
     mfile.write("executable('speedtest%d', 'main.c'" % target)
     for i in range(num_files):
@@ -167,8 +174,15 @@ speedtest_SOURCES = main.c ''')
 
 def gen_cmake_tree(outdir, num_files, num_dirs):
     cfile = open(os.path.join(outdir, 'CMakeLists.txt'), 'w')
-    cfile.write("project(speedtest C)\n")
-    cfile.write("include_directories(%s)\n" % ".")
+    cfile.write("""project(speedtest C)
+set(version "1.2.3")
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    @ONLY
+)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+""")
     for i in range(num_dirs):
         subdir = 'subdir%d' % i
         cfile.write("add_subdirectory(%s)\n" % subdir)
@@ -185,8 +199,10 @@ def gen_cmake(outdir, target, num_files):
 
 def gen_src_tree(outdir, num_files, num_dirs):
     os.makedirs(outdir, exist_ok=True)
-    foo_h = open(os.path.join(outdir, 'foo.h'), 'w')
-    foo_h_in = open(os.path.join(outdir, 'foo.h.in'), 'w')
+    # config_h = open(os.path.join(outdir, 'config.h'), 'w')
+    # config_h.write("#define VERSION_STR \"0.0.0\"\n")
+    config_h_in = open(os.path.join(outdir, 'config.h.in'), 'w')
+    config_h_in.write("#define VERSION_STR \"@version@\"\n")
     for i in range(num_dirs):
         subdir = 'subdir%d' % i
         os.makedirs(os.path.join(outdir, subdir), exist_ok=True)
@@ -203,7 +219,7 @@ def gen_src(outdir, num_files):
 
 int main(int argc, char **argv) {
 ''')
-    hfile.write("#include \"foo.h\"\n\n")
+    hfile.write("#include \"config.h\"\n\n")
     for i in range(num_files):
         fname = os.path.join(outdir, 'file%d.c' % i)
         fcontents = ftempl % i
