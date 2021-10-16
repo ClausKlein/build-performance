@@ -6,11 +6,12 @@ import os
 
 from textwrap import dedent
 
+
 def gen_test(outdir, num_dirs, num_files):
     print("generate %d directories containing each %d source files at ./%s\n" %
           (num_dirs, num_files + 1, outdir))
     gen_src_tree(outdir, num_files, num_dirs)
-    gen_ninja_tree(outdir, num_files, num_dirs)
+    # XXX gen_ninja_tree(outdir, num_files, num_dirs)
     gen_cmake_tree(outdir, num_files, num_dirs)
     gen_meson_tree(outdir, num_files, num_dirs)
     # TODO gen_bazel_tree(outdir, num_files, num_dirs)
@@ -63,11 +64,11 @@ def gen_ninja_tree(outdir, num_files, num_dirs):
         
         rule cc
           depfile = $out.d
-          deps = gcc
-          command = ccache gcc -c -I$PWD $IN -o $out $FLAGS -MMD -MT $out -MF $out.d
+          deps = g++
+          command = ccache g++ -c -I$PWD $IN -o $out $FLAGS -MMD -MT $out -MF $out.d
         
         rule link
-          command = gcc -o $out $in $LINK_PATH $LINK_LIBRARIES
+          command = g++ -o $out $in $LINK_PATH $LINK_LIBRARIES
         
         build config: phony config.h
         build config.h: cp config.h.in
@@ -108,9 +109,9 @@ def gen_ninja(outdir, target, num_files, cfile):
 def gen_meson_tree(outdir, num_files, num_dirs):
     cfile = open(os.path.join(outdir, 'meson.build'), 'w')
     cfile.write(dedent("""
-        project('speedtest', 'cxx')
+        project('speedtest', 'cpp')
         conf_data = configuration_data()
-        conf_data.set('version', '1.2.3')
+        conf_data.set('PROJECT_VERSION', '1.2.3')
         configure_file(input : 'config.h.in',
                        output : 'config.h',
                        configuration : conf_data)
@@ -128,7 +129,7 @@ def gen_meson(outdir, target, num_files):
     # odir = os.path.relpath("..", start=outdir + "/..")
     odir = ".."
     mfile.write("incdir = include_directories('%s')\n" % odir)
-    mfile.write("executable('speedtest%d', 'main.cpp'" % target)
+    mfile.write("library('speedtest%d', 'main.cpp'" % target)
     for i in range(num_files):
         mfile.write(""", 'file%d.cpp'""" % i)
     mfile.write(', include_directories : incdir)\n')
@@ -197,7 +198,7 @@ def gen_cmake_tree(outdir, num_files, num_dirs):
 
 def gen_cmake(outdir, target, num_files):
     cfile = open(os.path.join(outdir, 'CMakeLists.txt'), 'w')
-    cfile.write("add_executable(testexe%d main.cpp\n" % target)
+    cfile.write("add_library(testexe%d main.cpp\n" % target)
     for i in range(num_files):
         cfile.write('  file%d.cpp\n' % i)
     cfile.write(')\n')
@@ -224,7 +225,7 @@ def gen_src(outdir, num_files):
 #include <iostream>
 #include <string>
 
-int func{0}() {{ 
+int func{0}() {{
     std::cout << "{0}) std::string(); ";
     std::string s("{0}");
     assert(!s.empty() && (s.length() == 1) && (s.size() == 1));
@@ -266,7 +267,7 @@ def main():
         print(err)  # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
-    outdir = 'build'
+    outdir = 'generated'
     dirnum = 9
     filenum = 7
     for o, a in opts:

@@ -2,6 +2,7 @@
 .sconsign.dblite
 CMakeLists.txt
 SConstruct
+generated/
 build*/
 compile_commands.json
 meson-info/
