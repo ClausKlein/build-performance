@@ -76,39 +76,50 @@ The *meson* build generator creates only one and a simpler and clear
 And build performance with a real project
 ------------------------------------------
 
-The https://github.com/open-source-parsers/jsoncpp use both, *meson* and *cmake*::
+The https://github.com/open-source-parsers/jsoncpp supports both, *meson* and *cmake*::
 
-  bash-5.0$ python3 ./build_performance_measure.py
-  Running command: rm -rf build-cmake-ninja && mkdir -p build-cmake-ninja && CXX=g++ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Release -G Ninja -B build-cmake-ninja
-  Running command: ninja -C build-cmake-ninja
-  Running command: ninja -C build-cmake-ninja
-  Running command: ninja -C build-cmake-ninja clean
-  Running command: ninja -C build-cmake-ninja
-  Running command: rm -rf build-meson && mkdir -p build-meson && CXX='ccache g++' meson build-meson
-  Running command: ninja -C build-meson
-  Running command: ninja -C build-meson
-  Running command: ninja -C build-meson clean
-  Running command: ninja -C build-meson
+  clausklein$ ~/cmake/BuildPerformance/measure.py .
+  Running command: rm -rf build-cmake && mkdir -p build-cmake && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -B build-cmake
+  Running command: make -C build-cmake -j 4
+  Running command: make -C build-cmake -j 4
+  Running command: make -C build-cmake -j 4 clean
+  Running command: make -C build-cmake -j 4
+  Running command: rm -rf build-cmake-ninja && mkdir -p build-cmake-ninja && cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -B build-cmake-ninja -G Ninja
+  Running command: ninja -C build-cmake-ninja -j 4
+  Running command: ninja -C build-cmake-ninja -j 4
+  Running command: ninja -C build-cmake-ninja -j 4 clean
+  Running command: ninja -C build-cmake-ninja -j 4
+  Running command: rm -rf build-meson && mkdir -p build-meson && CC='ccache g++' meson build-meson
+  Running command: ninja -C build-meson -j 4
+  Running command: ninja -C build-meson -j 4
+  Running command: ninja -C build-meson -j 4 clean
+  Running command: ninja -C build-meson -j 4
+  cmake-make
+   1.704 gen
+   0.858 build
+   0.119 empty build
+   0.116 clean
+   0.706 rebuild
+   3.503 overall
   cmake-ninja
-   3.755 gen
-   0.739 build
-   0.018 empty build
-   0.044 clean
-   0.721 rebuild
-   5.276 overall
+   2.945 gen
+   0.558 build
+   0.058 empty build
+   0.106 clean
+   0.391 rebuild
+   4.057 overall
   meson
-   1.918 gen
-   1.409 build
-   0.014 empty build
-   0.032 clean
-   1.410 rebuild
-   4.784 overall
-  bash-5.0$
+   1.136 gen
+   0.427 build
+   0.054 empty build
+   0.103 clean
+   0.432 rebuild
+   2.152 overall
+  clausklein$
 
-
-Interesting is here: The compact *meson.build* file (only 125 lines) generates
-fast a realy clear *build.ninja*, but needs more time to build (old i386 with
-only 2 cores). Overall for this small project, mesonbuild is faster.
+Interesting is here: The compact *meson.build* file (only 120 lines) generates
+fast a realy clear *build.ninja*.
+Overall for this small project, mesonbuild is faster.
 
 IMHO: The winner seems https://mesonbuild.com using https://ninja-build.org and https://ccache.dev
 
