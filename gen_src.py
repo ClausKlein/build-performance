@@ -198,10 +198,11 @@ def gen_cmake_tree(outdir, num_files, num_dirs):
 
 def gen_cmake(outdir, target, num_files):
     cfile = open(os.path.join(outdir, 'CMakeLists.txt'), 'w')
-    cfile.write("add_library(testexe%d main.cpp\n" % target)
+    cfile.write("add_library(testlib%d main.cpp\n" % target)
     for i in range(num_files):
         cfile.write('  file%d.cpp\n' % i)
     cfile.write(')\n')
+    cfile.write('set_target_properties(testlib%d PROPERTIES UNITY_BUILD ON)\n' % target)
 
 
 def gen_src_tree(outdir, num_files, num_dirs):
