@@ -129,7 +129,7 @@ def gen_meson(outdir, target, num_files):
     # odir = os.path.relpath("..", start=outdir + "/..")
     odir = ".."
     mfile.write("incdir = include_directories('%s')\n" % odir)
-    mfile.write("library('speedtest%d', 'main.cpp'" % target)
+    mfile.write("static_library('speedtest%d', 'main.cpp'" % target)
     for i in range(num_files):
         mfile.write(""", 'file%d.cpp'""" % i)
     mfile.write(', include_directories : incdir)\n')
@@ -181,7 +181,7 @@ def gen_autotools(outdir, num_files):
 def gen_cmake_tree(outdir, num_files, num_dirs):
     cfile = open(os.path.join(outdir, 'CMakeLists.txt'), 'w')
     cfile.write(dedent("""
-        cmake_minimum_required(VERSION 3.13...3.21)
+        cmake_minimum_required(VERSION 3.16...3.21)
         project(speedtest VERSION 1.2.3 LANGUAGES CXX)
         configure_file(
             ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
@@ -198,7 +198,7 @@ def gen_cmake_tree(outdir, num_files, num_dirs):
 
 def gen_cmake(outdir, target, num_files):
     cfile = open(os.path.join(outdir, 'CMakeLists.txt'), 'w')
-    cfile.write("add_library(testlib%d main.cpp\n" % target)
+    cfile.write("add_library(testlib%d STATIC main.cpp\n" % target)
     for i in range(num_files):
         cfile.write('  file%d.cpp\n' % i)
     cfile.write(')\n')
